@@ -81,4 +81,31 @@ print("<list>[1:] would return everything but the first element.")
 print("[1,2][1:] =", [1,2][1:])
 print("theList[1:] = ",theList[1:])
 
-## List Comprehensions
+## List Comprehensions -> They make sense, to me, when you think about what looping is happening.
+# Link below is pretty good
+# https://towardsdatascience.com/11-examples-to-master-python-list-comprehensions-33c681b56212
+# [expr for val in collection if condition]
+#
+# result = []
+# for val in collection:
+#     if condition:
+#         result.append(expr)
+#
+# [x for x in [2,3]] -> we are just duplicating the list here
+print("\n[x for x in [2,3]] -> This just duplicates the list")
+print("[x for x in [2,3]] =",[x for x in [2,3]])
+# 
+# [x for x in [1,2] if x ==1] -> return me a new list of only those elements that equal 1.
+print("\n[x for x in [1,2] if x ==1] -> Return me a new list of only those elements that equal 1.")
+print("[x for x in [1,2] if x ==1] =",[x for x in [1,2] if x ==1])
+#
+#
+## Nested Comprehensions
+# [y*2 for x in [[1,2],[3,4]] for y in x]
+# This creates a new list where each element is squared.
+# 
+# for in x in [[1,2],[3,4]]
+#     for y in x
+#        list.append(y^2) 
+print("\n[y*2 for x in [[1,2],[3,4]] for y in x] -> Create a new list containing each entry in the matrix squared.")
+print("[y*2 for x in [[1,2],[3,4]] for y in x] = ",[y*2 for x in [[1,2],[3,4]] for y in x])

@@ -177,7 +177,6 @@ print("The sum of all our values in our Counter ->",sum(c.values()))
 # Clear will empty the Counter
 c.clear()
 
-from itertools import *
 flower_orders=['W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B',
 'W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B','W/R/B',
 'W/R/B','W/R/B','W/R/B','W/R/B','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R','W/R',
@@ -227,6 +226,36 @@ print("The number of orders having 'W' in them:",len(Worders))
 from matplotlib import pyplot as plt
 colors = [y for x in flower_orders for y in x.split('/')]
 plt.hist(colors)
-plt.show()
+#plt.show()
 
 
+# Itertools - Functions for creating iterators for efficient looping
+# https://docs.python.org/3/library/itertools.html
+
+# 4. Rank the tuples of color pairs regardless of how many colors in order.
+from itertools import *
+
+## Pseduo code ... , tranlate to LC
+""" for x in flower_orders:
+    print(x)
+    for y in combinations(x.split('/'),2):
+        print(y) """
+
+## Create the combinations, use counter to order and print out
+print("")
+colorCombinations = [y for x in flower_orders for y in combinations(x.split('/'),2)]
+colorCounter = Counter(colorCombinations)
+for i in colorCounter:
+    print("% s : % s" % (i, colorCounter[i]), end ="\n")
+
+
+
+# 5. Rank the triples of color pairs regardless of how many colors in order.
+# This should be the same as above, but with 3 colors instead of 2
+
+## Create the combinations, use counter to order and print out
+print("")
+colorCombinations = [y for x in flower_orders for y in combinations(x.split('/'),3)]
+colorCounter = Counter(colorCombinations)
+for i in colorCounter:
+    print("% s : % s" % (i, colorCounter[i]), end ="\n")

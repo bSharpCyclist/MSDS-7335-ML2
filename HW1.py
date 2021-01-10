@@ -213,10 +213,20 @@ print("\n2. Count how many objects have color W in them.")
 Worders = [x for x in flwCnt if 'W' in x]
 print("The number of orders having 'W' in them:",len(Worders))
 
-""" flwList = list(flwSet)
-print(flwList)
-print(len(flwCnt))
-test = [x for x in flwCnt if 'W' in x]
-print(len(test)) """
+
+# 3. Make histogram of colors
+# I'm assuming individual colors
+# Nested comprehensions!
+
+# This would print out all colors
+#for x in flower_orders:
+#    for y in x.split('/'):
+#        print(y)
+
+# Nested List Comprehension
+from matplotlib import pyplot as plt
+colors = [y for x in flower_orders for y in x.split('/')]
+plt.hist(colors)
+plt.show()
 
 

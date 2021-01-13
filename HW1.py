@@ -92,6 +92,11 @@ print("[1,2][1:] =", [1,2][1:])
 print("theList[1:] = ",theList[1:])
 
 ## List Comprehensions -> They make sense when you think about what looping is happening.
+# Cache/Mumps has the concept of iterating over global and condensed for loops can be written in a similar way, so the concept feels familar to me.
+# Exp/Result is set on right, instead of left
+# Mumps stores data in a multidimensional hierarchical sparse arrays 
+# f  s node=$o(arr(node)) q:node=""  f  s subnode=$o(arr(node,subnode)) q:subnode=""  do whatever
+#
 # Link below is pretty good if you want a visual, which helps
 # https://towardsdatascience.com/11-examples-to-master-python-list-comprehensions-33c681b56212
 # [expr for val in collection if condition]
@@ -298,6 +303,8 @@ from itertools import *
         print(y) """
 
 ## Create the combinations, use counter to order and print out
+#
+# Note - I used combinations instead of permutations since the problem stated in order
 print("")
 colorCombinations = [y for x in flower_orders for y in combinations(x.split('/'),2)]
 colorCounter = Counter(colorCombinations)
@@ -318,7 +325,7 @@ for i in colorCounter:
 
 
 # 6. Make dictionary of where keys are a color and values are what colors go with it
-# Didn't really follow what was being asked, so I'll make something up. We will answer this question.
+# Didn't really follow what was being asked, so go with what I discussed with Fabio on discord.
 # When a color X appears in a on order, it appeared with the following other colors.
 
 # We can use set compreshenions too, intialize to empty set for each color
@@ -326,17 +333,73 @@ print("")
 uniqueColors = set(colors)
 newDict = {i : set() for i in uniqueColors}
 
-# Come back to this, I think we can write it better ...
+# Come back to this, I think I can write it better ...
 for order in flower_orders:
     orderList = order.split('/')
     for color in orderList:
         orderSet = set(orderList)
         orderSet.remove(color)
-        # union we existing value
+        # by setting the keys initially above, we shoudn't run into an index issue .. but better error handling could be done.
+        # union with existing value
         newDict[color] = orderSet | newDict[color]
 
+# I don't know what pprint is, so let's try it
 pprint.pprint("Pretty Print Dictionary")
 pprint.pprint(newDict)
+
+# 7. Make a graph showing the probability of having an edge between two colors based on how often they co-occur.  (a numpy square matrix)
+# 
+# I'm going to steal info I saw from John's video
+# 
+# https://www.youtube.com/watch?v=5nRWEnCMTsE
+#
+# We already have the set of tuples and their combinations count from #5 above.
+# If order doesn't matter, we can use combinations, otherwise, use permutations.
+# Anyway, I want to call out what data will be used.
+# Let's normalize in a similar way to what was done in the video.
+print("")
+print("Question 7")
+colorCombinations = [y for x in flower_orders for y in combinations(x.split('/'),2)]
+colorCounter = Counter(colorCombinations)
+
+colorDict = {}
+total = sum([y for x,y in colorCounter.items()])
+for k,v in colorCounter.items():
+    # The commented line of code was in video, I think we want it outside the loop
+    # Additionally, why the check for if x[0]==k[0] ??
+    #total = sum([y for x,y in colorCounter.items() if x[0]==k[0]])
+    # Round to 2 decimals
+    colorDict[k]=round(v/float(total),2)
+
+# Sanity check - does it add up to 1? It will be off because of rounding above
+print("Sum of probabilities:",sum([y for x,y in colorDict.items()]))
+
+# From John's video, modified a bit - I use this to create a .DOT file. Use plt.show() to show it.
+import networkx as nx
+def build_save_graph(a_dict, state_space, save_loc='TEMP.dot', highest = 1, lowest = 0):
+    G = nx.MultiDiGraph()
+    G.add_nodes_from(state_space)
+    for k,v in a_dict.items():
+        if v<=highest and v >lowest:
+            tmp_origin, tmp_destination = k[0], k[1]
+            G.add_edge(tmp_origin, tmp_destination, weight=v, label=v)
+    pos = nx.drawing.nx_pydot.graphviz_layout(G, prog='dot')
+    nx.draw_networkx(G, pos)
+    edge_labels = {(n1,n2):d['label'] for n1,n2,d in G.edges(data=True)}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    nx.drawing.nx_pydot.write_dot(G, save_loc)
+    plt.show() # <-- Show
+
+state_space = list(set([x for y in colorDict.keys() for x in y]))
+build_save_graph(colorDict, state_space, save_loc='TEMP.DOT')
+
+# 8. Make 10 business questions related to the questions we asked above.
+# 1. What's the cost of each order?
+# 2. What is the most popular order?
+# 3. What color occurs most often
+# 4. What orders can be eliminated
+# 5. When will we run out of a certain color
+# 6. Can a color be duplicated in an order?
 
 
 import string
@@ -439,7 +502,7 @@ plt.ylabel("Letter Transitioning From")
 plt.show()
 
 
-# 7. Flatten a nested list
+# 6. Flatten a nested list
 # How many nested levels? Sounds like a recurrsion problem to me.
 # There are several ways you could do this. List comprehension would work too
 # for a limited number of levels.

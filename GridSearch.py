@@ -55,6 +55,14 @@ def run(a_clf, data, clf_hyper={}):
 results = run(RandomForestClassifier, data, clf_hyper={})
 
 # Setup the classifiers and parameters
-
+# To use MLP we will need to scale the data
+mlp_params = {
+    'solver': 'lbfgs',
+    'alpha': 1e-5,
+    'hidden_layer_sizes': (3, 3),
+    'random_state': 1,
+    'max_iter': 100
+}
+results = run(MLPClassifier, data, clf_hyper=mlp_params)
 
 print("")

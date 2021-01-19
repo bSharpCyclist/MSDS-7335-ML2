@@ -78,6 +78,7 @@ mlp_params = {
 }
 results = run(MLPClassifier, data, clf_hyper=mlp_params)
 
+<<<<<<< HEAD
 print(results)
 
 
@@ -162,3 +163,6 @@ for model, params in model_params.items():
 
 
 print(gridResults)
+=======
+print("something")
+>>>>>>> d3765e402c8ce4d0a366f7cc71033d5f5549c77c

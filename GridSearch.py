@@ -30,9 +30,13 @@ from itertools import *
 #M = np.array([[1,2],[3,4],[4,5],[4,5],[4,5],[4,5],[4,5],[4,5]])
 #L = np.ones(M.shape[0])
 
+# This would use just 2 features
+#M = iris.data[:, [2, 3]]
+
+# Limit to Iris-versicolor and Iris-virginica, so just a binary classification problem
 iris = datasets.load_iris()
-M = iris.data
-L = iris.target
+M = iris.data[50:]
+L = iris.target[50:]
 
 # We typically scale data. It will help the MLP classifier.
 # Many algorithms require some sort of feature scaling for optimal performance
@@ -58,12 +62,23 @@ def run(a_clf, data, clf_hyper={}):
                'accuracy': accuracy_score(L[test_index], pred)}
   return ret
 
+# will return a dictionary of the clf, it's params, and the scores of all the metrics
 def run2(a_clf, data, clf_hyper={}, clf_metrics={}):
-    clf = a_clf(**clf_hyper)
+    clf = a_clf(**clf_hyper) # unpack parameters into clf is they exist
     M, L, n_folds = data
-    scores = {}
-    scores = cross_val_score(clf, X=M, y=L, cv=5, scoring='accuracy', n_jobs=-1)
-    return scores
+    
+    # scores = {}
+    # scores = cross_val_score(clf, X=M, y=L, cv=5, scoring='accuracy', n_jobs=-1)
+    # return scores
+
+    ret = {}
+
+    for metric in clf_metrics:
+        scores = cross_val_score(clf, X=M, y=L, cv=5, scoring=metric, n_jobs=-1)
+        ret.update({'clf': clf,
+                'clf_params': clf_hyper,
+                metric: scores})
+    return ret
 
 results = run(RandomForestClassifier, data, clf_hyper={})
 results2 = run2(RandomForestClassifier, data, clf_hyper={})
@@ -72,7 +87,7 @@ results2 = run2(RandomForestClassifier, data, clf_hyper={})
 mlp_params = {
     'solver': 'lbfgs',
     'alpha': 1e-5,
-    'hidden_layer_sizes': (3, 3),
+    'hidden_layer_sizes': (2, 3),
     'random_state': 1,
     'max_iter': 100
 }
@@ -80,36 +95,47 @@ results = run(MLPClassifier, data, clf_hyper=mlp_params)
 
 print(results)
 
+## Ideally we need to put all of this into a class with callable methods.
 
 ## Hypothetical Input, I will change later to use MCP
+## Use classifier as key, not string.
 model_params = {
-    'RandomForestClassifier':{ 
-        "n_estimators" : [100, 200, 500, 1000],
+    RandomForestClassifier: { 
+        #"n_estimators" : [100, 200, 500, 1000],
+        "n_estimators" : [100, 200],
         "max_features" : ["auto", "sqrt", "log2"],
         "bootstrap": [True],
         "criterion": ['gini', 'entropy'],
         "oob_score": [True, False]
         },
-    'KNeighborsClassifier': {
+    KNeighborsClassifier: {
         'n_neighbors': np.arange(3, 15),
         'weights': ['uniform', 'distance'],
         'algorithm': ['ball_tree', 'kd_tree', 'brute']
         },
-    'LogisticRegression': {
+    LogisticRegression: {
         'solver': ['newton-cg', 'sag', 'lbfgs'],
         'multi_class': ['ovr', 'multinomial']
-        }  
+        }
 }
+
+## Next new hypothetical inputs
+metrics = ['accuracy', 'roc_auc', 'recall', 'precision']
+
+# This will hold all of our results
+# It will be a list of dictionaries. A dictionary has the classifier, params, and the accuracy score, for now
+# We need to compare other metrics too
+gridResults = []
 
 ## Hi Fabio, this is a bit verbose, but I'm tyring to explain what is happening.
 ## It helps to step through code and take a look at the variables, their types, vals, etc.
-## You can do this in VSCode, and keep variables list up. Take a look at the different data structures
+## You can do this in VSCode, and keep variables list up. Take a lok at the different data structures
 for model, params in model_params.items():
 
     # This will hold all of our results
     # It will be a list of dictionaries. A dictionary has the classifier, params, and the accuracy score, for now
     # We need to compare other metrics too
-    gridResults = []
+    #gridResults = []
 
     print("")
     print("What model?",model)
@@ -149,16 +175,16 @@ for model, params in model_params.items():
     # so that we can understand what is happening.
     for runParams in paramsToPassToRun:
       print(runParams)
-      ## I'm using eval below to convert model string to classifier object
-      results = run(eval(model), data, runParams)
-      gridResults.append(results)
 
-      ## If we want to use Run 2, need to tweak before this will work
-      ## Again, Run2 will use cross value score intead, and we will 
-      #results = run2(eval(model), data, runParams)
+      ## Old Run Method
+      #results = run(model, data, runParams)
       #gridResults.append(results)
+
+      ## Use modified run, to support mutliple metrics
+      results = run2(model, data, runParams, metrics)
+      gridResults.append(results)
 
       ## Will then later process gridResults to get best scores, visualize, plot, etc.
 
-
-print(gridResults)
+print("")
+print(len(gridResults))

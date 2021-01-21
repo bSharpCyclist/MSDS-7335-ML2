@@ -62,7 +62,7 @@ def run(a_clf, data, clf_hyper={}):
                'accuracy': accuracy_score(L[test_index], pred)}
   return ret
 
-# will return a dictionary of the clf, it's params, and the scores of all the metrics
+# will return a dictionary of the clf, the params, and the scores of all the metrics
 def run2(a_clf, data, clf_hyper={}, clf_metrics={}):
     clf = a_clf(**clf_hyper) # unpack parameters into clf is they exist
     M, L, n_folds = data
@@ -131,6 +131,7 @@ gridResults = []
 ## It helps to step through code and take a look at the variables, their types, vals, etc.
 ## You can do this in VSCode, and keep variables list up. Take a lok at the different data structures
 for model, params in model_params.items():
+    break
 
     # This will hold all of our results
     # It will be a list of dictionaries. A dictionary has the classifier, params, and the accuracy score, for now
@@ -188,3 +189,48 @@ for model, params in model_params.items():
 
 print("")
 print(len(gridResults))
+
+
+## Begin Cleaner Solution ...
+
+class GridSearch(object):
+
+    def __init__(self, X, y, models_params={}, metrics=[]):
+        self.M = X
+        self.L = y
+        self.models_params = models_params
+        self.metrics = metrics
+        self.gridResults = []
+
+    def grid_search(self):
+        for model, params in self.models_params.items():
+            print("")
+            print("Evaluating ...", model.__name__, "...")
+            #
+            keys, values = zip(*params.items())
+            paramsToPassToRun = [dict(zip(keys, value)) for value in product(*values)]
+            
+            #
+            for runParams in paramsToPassToRun:
+                results = self.__run(model, data, runParams, metrics)
+                gridResults.append(results)
+            
+        return gridResults
+
+    def __run(self, a_clf, data, clf_hyper={}, clf_metrics={}):
+        clf = a_clf(**clf_hyper) # unpack parameters into clf is they exist
+        #M, L = data
+
+        ret = {}
+
+        for metric in clf_metrics:
+            scores = cross_val_score(clf, X=self.M, y=self.L, cv=5, scoring=metric, n_jobs=-1)
+            ret.update({'clf': clf,
+                    'clf_params': clf_hyper,
+                    metric: scores})
+        return ret
+
+## Test Class
+gs = GridSearch(M_std, L, model_params, metrics=metrics)
+results = gs.grid_search()
+print(len(results))

@@ -228,8 +228,10 @@ class GridSearch(object):
                 results = self.__run(model, data, runParams, metrics)
                 self.grid_results.append(results)
             
-        return self.grid_results
+        return self.best_scores
 
+    # Our run implementation is a bit differen than what was assigned.
+    # I changed it to use cross_val_score
     def __run(self, a_clf, data, clf_hyper={}, clf_metrics={}):
         clf = a_clf(**clf_hyper) # unpack parameters into clf as they exist
 
@@ -252,6 +254,12 @@ class GridSearch(object):
 
 ## Test Class
 gs = GridSearch(M_std, L, model_params, metrics=metrics)
-results = gs.grid_search()
-print(len(results))
-print(gs.best_scores)
+best_scores = gs.grid_search()
+
+# Quick text dump of scores and params
+for x in best_scores:
+    print("")
+    print(x['clf'].__name__)
+    for metric in x['best_scores']:
+        print(metric, "{:.2f}".format(x['best_scores'][metric]), "-", x['best_params'][metric])
+    

@@ -80,8 +80,8 @@ def run2(a_clf, data, clf_hyper={}, clf_metrics={}):
                 metric: scores})
     return ret
 
-results = run(RandomForestClassifier, data, clf_hyper={})
-results2 = run2(RandomForestClassifier, data, clf_hyper={})
+#results = run(RandomForestClassifier, data, clf_hyper={})
+#results2 = run2(RandomForestClassifier, data, clf_hyper={})
 
 # Let's test the 'run' method with a different classifier and parameters
 mlp_params = {
@@ -91,9 +91,9 @@ mlp_params = {
     'random_state': 1,
     'max_iter': 100
 }
-results = run(MLPClassifier, data, clf_hyper=mlp_params)
 
-print(results)
+#results = run(MLPClassifier, data, clf_hyper=mlp_params)
+#print(results)
 
 ## Ideally we need to put all of this into a class with callable methods.
 
@@ -131,6 +131,7 @@ gridResults = []
 ## It helps to step through code and take a look at the variables, their types, vals, etc.
 ## You can do this in VSCode, and keep variables list up. Take a lok at the different data structures
 for model, params in model_params.items():
+    # Break for now, cleaner code at bottom
     break
 
     # This will hold all of our results
@@ -200,7 +201,19 @@ class GridSearch(object):
         self.L = y
         self.models_params = models_params
         self.metrics = metrics
-        self.gridResults = []
+        self.grid_results = []
+        self.best_scores = []
+
+        # Create an empty list of the same length as metrics, will use later in zip
+        l = [0]*len(metrics)
+        z = [{}]*len(metrics)
+
+        # Init with passed in clfs, and empty values for best scores/params
+        for x in models_params:
+            self.best_scores.append({'clf': x, 
+                                     'best_scores': dict(zip(metrics,l)),
+                                     'best_params': dict(zip(metrics,z))
+                                    })
 
     def grid_search(self):
         for model, params in self.models_params.items():
@@ -210,27 +223,35 @@ class GridSearch(object):
             keys, values = zip(*params.items())
             paramsToPassToRun = [dict(zip(keys, value)) for value in product(*values)]
             
-            #
+            #Can probably use a list comprehension here
             for runParams in paramsToPassToRun:
                 results = self.__run(model, data, runParams, metrics)
-                gridResults.append(results)
+                self.grid_results.append(results)
             
-        return gridResults
+        return self.grid_results
 
     def __run(self, a_clf, data, clf_hyper={}, clf_metrics={}):
-        clf = a_clf(**clf_hyper) # unpack parameters into clf is they exist
-        #M, L = data
+        clf = a_clf(**clf_hyper) # unpack parameters into clf as they exist
 
         ret = {}
 
         for metric in clf_metrics:
             scores = cross_val_score(clf, X=self.M, y=self.L, cv=5, scoring=metric, n_jobs=-1)
             ret.update({'clf': clf,
-                    'clf_params': clf_hyper,
-                    metric: scores})
+                        'clf_params': clf_hyper,
+                        metric: scores})
+
+            # Update our collection of best mean scores
+            mean_score = scores.mean()
+            for x in self.best_scores:
+                if x['clf'] == a_clf and x['best_scores'][metric] < mean_score:
+                    x['best_scores'][metric] = mean_score
+                    x['best_params'][metric] = clf_hyper
+
         return ret
 
 ## Test Class
 gs = GridSearch(M_std, L, model_params, metrics=metrics)
 results = gs.grid_search()
 print(len(results))
+print(gs.best_scores)

@@ -102,7 +102,7 @@ mlp_params = {
 model_params = {
     RandomForestClassifier: { 
         #"n_estimators" : [100, 200, 500, 1000],
-        "n_estimators" : [100, 200],
+        "n_estimators" : [50, 100],
         "max_features" : ["auto", "sqrt", "log2"],
         "bootstrap": [True],
         "criterion": ['gini', 'entropy'],
@@ -202,18 +202,36 @@ class GridSearch(object):
         self.models_params = models_params
         self.metrics = metrics
         self.grid_results = []
-        self.best_scores = []
+        self.best_scores = []  # data structure used to print out scores
+        self.best_metrics = {} # data structure used to plot/visualize
 
-        # Create an empty list of the same length as metrics, will use later in zip
-        l = [0]*len(metrics)
-        z = [{}]*len(metrics)
+        # # Create an empty list of the same length as metrics, will use later in zip
+        # # Is there a better way to initialize a dictionary?
+        # ... There is ..
+        # l = [0]*len(metrics)
+        # z = [{}]*len(metrics)
 
-        # Init with passed in clfs, and empty values for best scores/params
+        # Init with passed in clfs, and empty values for best scores, best params is a dictionary
+        # for x in models_params:
+        #     self.best_scores.append({'clf': x, 
+        #                              'best_scores': dict(zip(metrics,l)),
+        #                              'best_params': dict(zip(metrics,z))
+        #                             })
+
         for x in models_params:
             self.best_scores.append({'clf': x, 
-                                     'best_scores': dict(zip(metrics,l)),
-                                     'best_params': dict(zip(metrics,z))
+                                     'best_scores': dict.fromkeys(metrics,0),
+                                     #'best_params': dict.fromkeys(metrics,{}),
+                                     'best_params': {k: {} for k in metrics}
                                     })
+
+        # Create container based on metric
+        # This will be a list of best scores, in the order of input classifiers
+        #
+        # Ahh - don't do this!
+        # List are mutable and updating one key updated all of them
+        # self.best_metrics = dict.fromkeys(metrics,[])
+        self.best_metrics = {k: [] for k in metrics}
 
     def grid_search(self):
         for model, params in self.models_params.items():
@@ -227,7 +245,13 @@ class GridSearch(object):
             for runParams in paramsToPassToRun:
                 results = self.__run(model, data, runParams, metrics)
                 self.grid_results.append(results)
-            
+        
+        # And this too, a comprehension it could be
+        #Update our metrics structure
+        for model in self.best_scores:
+            for metric in model['best_scores']:
+                self.best_metrics[metric].append(model['best_scores'][metric])
+
         return self.best_scores
 
     # Our run implementation is a bit differen than what was assigned.
@@ -249,8 +273,9 @@ class GridSearch(object):
                 if x['clf'] == a_clf and x['best_scores'][metric] < mean_score:
                     x['best_scores'][metric] = mean_score
                     x['best_params'][metric] = clf_hyper
-
+        
         return ret
+
 
 ## Test Class
 gs = GridSearch(M_std, L, model_params, metrics=metrics)
@@ -262,4 +287,32 @@ for x in best_scores:
     print(x['clf'].__name__)
     for metric in x['best_scores']:
         print(metric, "{:.2f}".format(x['best_scores'][metric]), "-", x['best_params'][metric])
+
+
+print(gs.best_metrics)
+
+# For Visualization, I imagine a panel for each metric, and a bar for each classifier showing the score.
+# It would be really cool then if the tooltip over the bar for a classifier would show the best params.
+# I'll leave out best params in the graph for now ...
+#
+# But I'd like to create a different dictionary structure for plotting.
+# 
+# Create classifier array of names
+clfs_list = [x.__name__ for x in model_params]
+
+import matplotlib.pyplot as plt
+
+num_plots = len(gs.best_metrics)
+index = 0
+
+plt.figure(figsize=(16,8))
+for metric in gs.best_metrics:
+    index = index + 1
+    plt.subplot(num_plots, 2, index)
+    #plt.ylim(0, 1)
+    plt.title(metric)
+    plt.plot(clfs_list, gs.best_metrics[metric])
+plt.tight_layout()
+#plt.subplots_adjust(left=0.125, right=0.9, bottom=0.1, top=0.9, wspace=0.2, hspace=1)
+plt.show()
     

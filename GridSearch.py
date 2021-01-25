@@ -83,19 +83,7 @@ def run2(a_clf, data, clf_hyper={}, clf_metrics={}):
 #results = run(RandomForestClassifier, data, clf_hyper={})
 #results2 = run2(RandomForestClassifier, data, clf_hyper={})
 
-# Let's test the 'run' method with a different classifier and parameters
-mlp_params = {
-    'solver': 'lbfgs',
-    'alpha': 1e-5,
-    'hidden_layer_sizes': (2, 3),
-    'random_state': 1,
-    'max_iter': 100
-}
 
-#results = run(MLPClassifier, data, clf_hyper=mlp_params)
-#print(results)
-
-## Ideally we need to put all of this into a class with callable methods.
 
 ## Hypothetical Input, I will change later to use MCP
 ## Use classifier as key, not string.
@@ -121,75 +109,6 @@ model_params = {
 
 ## Next new hypothetical inputs
 metrics = ['accuracy', 'roc_auc', 'recall', 'precision']
-
-# This will hold all of our results
-# It will be a list of dictionaries. A dictionary has the classifier, params, and the accuracy score, for now
-# We need to compare other metrics too
-gridResults = []
-
-## Hi Fabio, this is a bit verbose, but I'm tyring to explain what is happening.
-## It helps to step through code and take a look at the variables, their types, vals, etc.
-## You can do this in VSCode, and keep variables list up. Take a lok at the different data structures
-for model, params in model_params.items():
-    # Break for now, cleaner code at bottom
-    break
-
-    # This will hold all of our results
-    # It will be a list of dictionaries. A dictionary has the classifier, params, and the accuracy score, for now
-    # We need to compare other metrics too
-    #gridResults = []
-
-    print("")
-    print("What model?",model)
-
-    # We can do this to see each paramter and the associated values
-    for param_key, param_values in params.items():
-        print("")
-        print("Parameter Key and Values",param_key, param_values)
-
-    # Tuples ('solver', 'multi_class') (['newton-cg', 'sag', 'lbfgs'], ['ovr', 'multinomial'])
-    # What are we doing here?
-    # Create tuples for all the keys (key1, key2, key3) and the values for those keys
-    # Keys = tuples of strings (ParamName)
-    # Values = tuples of lists of parameter values
-    # It's the values we'll want to use in the product function
-    keys, values = zip(*params.items())
-    print("")
-    print("Tuples",keys,values)
-
-    # We can upack our values as a parameter to the product function to
-    # find all the different combinations.
-    for x in product(*values):
-        print("")
-        print("Using Product Function", x)
-
-    # Look at the output. We have all the different permutations.
-    # Our run method expects a dictionary of param names and values
-    # So let's loop over all the permutations, zip that with our keys to create tuples of param/paramValue
-    # And then create a dictionary out of those tuples. Does that make sense?
-    # ParamsToPassToRun is a list of dictionaries, and the run method wants a dictionary. Will then iterate over that.
-    paramsToPassToRun = [dict(zip(keys, value)) for value in product(*values)]
-    print("")
-    print("Params To Pass To Run", paramsToPassToRun)
-
-    ## Now loop over the paramsToPass
-    # We could use list comprehensions here, but I'm being verbose to start
-    # so that we can understand what is happening.
-    for runParams in paramsToPassToRun:
-      print(runParams)
-
-      ## Old Run Method
-      #results = run(model, data, runParams)
-      #gridResults.append(results)
-
-      ## Use modified run, to support mutliple metrics
-      results = run2(model, data, runParams, metrics)
-      gridResults.append(results)
-
-      ## Will then later process gridResults to get best scores, visualize, plot, etc.
-
-print("")
-print(len(gridResults))
 
 
 ## Begin Cleaner Solution ...

@@ -215,4 +215,21 @@ gs = GridSearch(X=X_std, y=y, models_params=model_params, metrics=metrics)
 best_scores = gs.grid_search()
 gs.print_scores()
 gs.plot_metric_scores()
-    
+
+# Compare with the grid search from Sklearn
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import ShuffleSplit
+lr= LogisticRegression()
+model_params= {
+        'solver': ['newton-cg', 'sag', 'lbfgs'],
+        'multi_class': ['ovr', 'multinomial']
+        }
+#make CV spit 80/20 object
+num_cv_iterations = 3
+cv_object = ShuffleSplit(n_splits=num_cv_iterations,
+                         test_size  = 0.2)
+                         
+clf = GridSearchCV(lr, model_params, scoring="roc_auc", cv=cv_object)
+clf.fit(X_std, y)
+
+print("Best: %f using %s" % (clf.best_score_, clf.best_params_))

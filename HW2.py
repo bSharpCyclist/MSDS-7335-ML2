@@ -48,21 +48,36 @@
 # The code above was provided to start with. I've commented it out.
 # I created a class and then some test cases afterwards.
 # My run implementation is a bit different, and I'm going to use cross_val_score which includes Kfolds
-# A nice exerise in working with different data structures, dictionaries within dictionaries, etc.
+# A nice exercise in working with different data structures, dictionaries within dictionaries, etc.
+# Note, there is no error checking and no thought as to whether or not the modesl/params 
+# make sense for a given dataset.
 
 import numpy as np
 import itertools as it
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import RobustScaler
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn import datasets
 import matplotlib.pyplot as plt
 
-# Describe class inputs
-
 class GridSearch(object):
+    """
+    Grid search for multiple models and metrics.
+    Would be useful to complete this, but really don't have time ;0
+    ...
+
+    Attributes
+    ----------
+    xxx
+
+    Methods
+    -------
+    xxx
+    """
 
     def __init__(self, X, y, models_params={}, metrics=[]):
         self.M = X
@@ -98,7 +113,19 @@ class GridSearch(object):
             print("")
             print("Evaluating ...", model.__name__, "...")
             #
+            # Keys = hyperparmeters, e.g. 'solver'
+            # Values = e.g., 'newton-cg', 'lbfgs'
+            # We have multiple values for a key (hyperparameter) that we wish to test
             keys, values = zip(*params.items())
+
+            #It's worth mentioning how this works, if it's new to you
+            # Starting on the far right:
+            #   it.product(*values) = we unupack our values (a tuple of lists, with each list being a list
+            #   of possible values for a given hyperparameter) and create an iterable of possible combinations 
+            #   that we can loop over.
+            #   Value that is returned is a tuple containing one value for each hyperparmater
+            #   So we can zip that with our keys and create a dictionary of every possible combination
+            #   of hyperparameters and values
             paramsToPassToRun = [dict(zip(keys, value)) for value in it.product(*values)]
             
             #Can probably use a list comprehension here
@@ -115,7 +142,7 @@ class GridSearch(object):
         return self.best_scores
 
     # Our run implementation is a bit different than what was assigned.
-    # I changed it to use cross_val_score
+    # I changed it to use cross_val_score with cv=5, same 5 K-folds above
     def __run(self, a_clf, clf_hyper={}, clf_metrics={}):
         clf = a_clf(**clf_hyper) # unpack parameters into clf as they exist
 
@@ -190,8 +217,10 @@ model_params = {
         'algorithm': ['ball_tree', 'kd_tree', 'brute']
         },
     LogisticRegression: {
-        'solver': ['newton-cg', 'sag', 'lbfgs'],
-        'multi_class': ['ovr', 'multinomial']
+        #'solver': ['newton-cg', 'sag', 'lbfgs'],
+        'solver': ['newton-cg', 'lbfgs'],
+        'multi_class': ['ovr', 'multinomial'],
+        'max_iter': [100, 1000]
         }
 }
 
@@ -208,8 +237,37 @@ cancer = datasets.load_breast_cancer()
 X = cancer['data']
 y = cancer['target']
 
-scaler.fit(X)
-X_std = scaler.transform(X)
+# Let's scale with RobustScaler
+# MLPClassifier throws a bunch of warnings, but then again
+# NO THOUGHT was put into if these models and hyperparams even make sense for our data set!
+# It's been a playful exercise in python data structures
+robust_scaler = RobustScaler()
+robust_scaler.fit(X)
+X_std = robust_scaler.transform(X)
+
+# Let's use different set of model/params
+model_params = {
+    RandomForestClassifier: { 
+        "n_estimators" : [50, 100],
+        "max_features" : ["auto", "sqrt", "log2"],
+        "bootstrap": [True],
+        "criterion": ['gini', 'entropy'],
+        "oob_score": [True, False]
+        },
+    MLPClassifier: {
+        'hidden_layer_sizes': (3,3),
+        'alpha': [.0001, .001, .01],
+        'solver': ['lbfgs', 'sgd', 'adam'],
+        'activation': ['identity', 'logistic', 'tanh', 'relu'],
+        'learning_rate': ['constant', 'invscaling', 'adaptive'],
+        'max_iter': [1000, 2000]
+        },
+    LogisticRegression: {
+        'solver': ['newton-cg', 'lbfgs'],
+        'multi_class': ['ovr', 'multinomial'],
+        'max_iter': [100, 1000]
+        }
+}
 
 gs = GridSearch(X=X_std, y=y, models_params=model_params, metrics=metrics)
 best_scores = gs.grid_search()

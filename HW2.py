@@ -61,6 +61,7 @@ from sklearn.preprocessing import RobustScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import StratifiedKFold
 from sklearn import datasets
 import matplotlib.pyplot as plt
 
@@ -149,7 +150,7 @@ class GridSearch(object):
         ret = {}
 
         for metric in clf_metrics:
-            scores = cross_val_score(clf, X=self.M, y=self.L, cv=5, scoring=metric, n_jobs=-1)
+            scores = cross_val_score(clf, X=self.M, y=self.L, cv=StratifiedKFold(n_splits=5, random_state=0), scoring=metric, n_jobs=-1)
             ret.update({'clf': clf,
                         'clf_params': clf_hyper,
                         metric: scores})
@@ -239,20 +240,22 @@ y = cancer['target']
 
 # Let's scale with RobustScaler
 # MLPClassifier throws a bunch of warnings, but then again
-# NO THOUGHT was put into if these models and hyperparams even make sense for our data set!
+# NO THOUGHT was put into if these models, hyperparams and metrics even make sense for our data set!
 # It's been a playful exercise in python data structures
 robust_scaler = RobustScaler()
 robust_scaler.fit(X)
 X_std = robust_scaler.transform(X)
 
 # Let's use different set of model/params
+# Note, I'm passing random_state below because I'm going to compare later the GridSearchCV function
 model_params = {
     RandomForestClassifier: { 
         "n_estimators" : [50, 100],
         "max_features" : ["auto", "sqrt", "log2"],
         "bootstrap": [True],
         "criterion": ['gini', 'entropy'],
-        "oob_score": [True, False]
+        "oob_score": [True, False],
+        "random_state": [0]
         },
     MLPClassifier: {
         'hidden_layer_sizes': (3,3),
@@ -273,3 +276,31 @@ gs = GridSearch(X=X_std, y=y, models_params=model_params, metrics=metrics)
 best_scores = gs.grid_search()
 gs.print_scores()
 gs.plot_metric_scores()
+
+# Compare with the GridSearchCV from Sklearn
+# Note, I went back and added StratifiedKfold and random_state
+# to see if the results matches.
+from sklearn.model_selection import GridSearchCV
+
+model = RandomForestClassifier(random_state=0)
+model_params= {
+        "n_estimators" : [50, 100],
+        "max_features" : ["auto", "sqrt", "log2"],
+        "bootstrap": [True],
+        "criterion": ['gini', 'entropy'],
+        "oob_score": [True, False]
+        }
+cv = StratifiedKFold(n_splits=5, random_state=0)
+
+# RandomForest and Precision
+clf = GridSearchCV(estimator=model, param_grid=model_params, cv=cv, scoring="precision")
+clf.fit(X_std, y)
+print("Best: %f using %s" % (clf.best_score_, clf.best_params_))
+
+# RandomForest and Roc_auc
+clf = GridSearchCV(estimator=model, param_grid=model_params, cv=cv, scoring="roc_auc")
+clf.fit(X_std, y)
+print("Best: %f using %s" % (clf.best_score_, clf.best_params_))
+
+# If you look at the output from GridSearchCV and compare to our own method,
+# you'll see the results are the same!

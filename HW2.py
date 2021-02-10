@@ -150,7 +150,7 @@ class GridSearch(object):
         ret = {}
 
         for metric in clf_metrics:
-            scores = cross_val_score(clf, X=self.M, y=self.L, cv=StratifiedKFold(n_splits=5, random_state=0), scoring=metric, n_jobs=-1)
+            scores = cross_val_score(clf, X=self.M, y=self.L, cv=StratifiedKFold(n_splits=5), scoring=metric, n_jobs=-1)
             ret.update({'clf': clf,
                         'clf_params': clf_hyper,
                         metric: scores})
@@ -290,7 +290,7 @@ model_params= {
         "criterion": ['gini', 'entropy'],
         "oob_score": [True, False]
         }
-cv = StratifiedKFold(n_splits=5, random_state=0)
+cv = StratifiedKFold(n_splits=5)
 
 # RandomForest and Precision
 clf = GridSearchCV(estimator=model, param_grid=model_params, cv=cv, scoring="precision")

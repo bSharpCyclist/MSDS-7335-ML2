@@ -233,3 +233,5 @@ clf = GridSearchCV(lr, model_params, scoring="roc_auc", cv=cv_object)
 clf.fit(X_std, y)
 
 print("Best: %f using %s" % (clf.best_score_, clf.best_params_))
+# If you look at the output from GridSearchCV and compare to our own method,
+# you'll see the results are the same!

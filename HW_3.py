@@ -248,11 +248,16 @@ np.dot(M_restaurants_m,M_people_m.T).T[:,0]
 # Get the sum of the score for the first user
 sum(np.dot(M_restaurants_m,M_people_m.T).T[:,0])
 
-# We will get the rank of the restaurant. Hiher rank better
-# Restaurant Az is the number one ranked and restaurant, and restaurant Arab and AB are the second and third tight 
-get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T).T))
 
-# We will calculate the user rank for 
+# We will get the rank of the restaurant. Lower rank better
+# Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second. 
+get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T).T))
+#`````````````````````````````````````````````````````````````````````````````````````````````````````
+
+# We will calculate the user rank by summing the row 
+sum(np.dot(M_restaurants_m,M_people_m.T))
+
+get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T))) 
 
 
 

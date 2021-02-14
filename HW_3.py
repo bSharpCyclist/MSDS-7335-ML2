@@ -188,7 +188,7 @@ rankdata(np.dot(M_restaurants,m))
 # The number 9 restaurant is the second in the rank to be choose by the selected user,(restaurant= At) 
 
 # Better display of the rank
-rankdata(len(m)-rankdata(np.dot(M_restaurants_m,m)))
+rankdata(len(m)-rankdata(np.dot(M_restaurants,m)))
 
 
 # Multiples user
@@ -200,25 +200,25 @@ M_usr_x_rest= np.dot(M_restaurants,M_people.T)
 M_usr_x_rest
 
 # Ech entry in this vector is the score for the choosing restaurant from all the user. Higher is better
-sum(np.dot(M_restaurants_m,M_people_m.T).T)
+sum(np.dot(M_restaurants,M_people.T).T)
 
 # Explore the output
-np.dot(M_restaurants_m,M_people_m.T).T[:,0]
+np.dot(M_restaurants,M_people.T).T[:,0]
 
 # Get the sum of the score for the first user
-sum(np.dot(M_restaurants_m,M_people_m.T).T[:,0])
+sum(np.dot(M_restaurants,M_people.T).T[:,0])
 
 # We will get the rank of the restaurant. Lower rank better
 # Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second. 
-get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T).T))
+get_real_rank(sum(np.dot(M_restaurants,M_people.T).T))
 #`````````````````````````````````````````````````````````````````````````````````````````````````````
 
 # We will calculate the user rank by the row 
-
 M_usr_x_rest_rank= []
 for row in M_usr_x_rest:
     ranked_row = get_real_rank(row)
     M_usr_x_rest_rank= ranked_row
     M_usr_x_rest_rank = np.array(M_usr_x_rest_rank)
     
+
 print( M_usr_x_rest_rank)

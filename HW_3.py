@@ -260,5 +260,14 @@ sum(np.dot(M_restaurants_m,M_people_m.T))
 get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T))) 
 
 
+# We will calculate the user rank by the row 
+
+M_usr_x_rest_rank= []
+for row in M_usr_x_rest:
+    ranked_row = get_real_rank(row)
+    M_usr_x_rest_rank= ranked_row
+    M_usr_x_rest_rank = np.array(M_usr_x_rest_rank)
+    
+print( M_usr_x_rest_rank)
 
             

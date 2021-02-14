@@ -155,57 +155,16 @@ restaurants  = {'flacos':{'distance' : 2,
                           'vegetarian': 1
                           }
                        
-}    
- 
-# People                
- # Convert dict of people into an array 
-orderedNames = ['Jane','Bob','Paul', 'Jim', 'Kasi', 'Ron', 'Joe', 'Alex', 'Fabio', 'Saul']
-
-M_people  = np.array([people[i] for i in orderedNames])
-
-# print the numpy array people
-print(M_people)
-
-from sklearn.feature_extraction import DictVectorizer
-# Our dictionary of data
-M_people
-
-# Create DictVectorizer object
-dictvectorizer = DictVectorizer(sparse=False)
-
-# Convert dictionary into feature matrix
-M_people_m = dictvectorizer.fit_transform(M_people)
-print(M_people_m)
-
-print(dictvectorizer.get_feature_names())
-# Rearange column
-
-i = [0,1,2,5,3,4]
-M_people_m = M_people_m[:,i]
-print(M_people_m)
+} 
+ # People matrix               
+M_people = np.array([[v2 for _, v2 in v.items()] for _, v in people.items()])                
+M_people 
 
 
-# Restaurant
-              
-orderedNames = ['flacos','Joes','AB', 'AC', 'Sushi', 'Italian', 'Arab', 'Az', 'At', 'Chinese']
+# Restaurant matrix
+M_restaurants= np.array([[v2 for _, v2 in v.items()] for _, v in restaurants.items()])
+M_restaurants           
 
-M_restaurants  = np.array([ restaurants[i] for i in orderedNames])
-
-# print the numpy array people
-print(M_restaurants)               
-                 
-# Our dictionary of data
-M_restaurants
-
-# Create DictVectorizer object
-dictvectorizer = DictVectorizer(sparse=False)
-
-# Convert dictionary into feature matrix
-M_restaurants_m = dictvectorizer.fit_transform(M_restaurants)
-print(M_restaurants_m)                 
-                 
-print(dictvectorizer.get_feature_names())                
- 
 # Definition of linear combination
 # If you take a set of matrices, you multiply each of them by a scalar, 
 # and you add together all the products thus obtained, then you obtain a linear combination.
@@ -215,15 +174,15 @@ print(dictvectorizer.get_feature_names())
 # We will multiply the matrix choose from the peoples or user to the information that we got from the
 # website about the restaurant in order to find the recommended restaurant
 
-m= M_people_m[0]
+m= M_people[0]
 m 
-np.dot(M_restaurants_m,m)
+np.dot(M_restaurants,m)
 # Each entry in the producing vector represent the sume of the score for each restaurant 
 # for the specific user
 
 from scipy.stats import rankdata
 
-rankdata(np.dot(M_restaurants_m,m))
+rankdata(np.dot(M_restaurants,m))
 # Higher rank better
 # The restaurant number 1 (flacos) has the highest score and it is the preferred restaurant for the selected user 
 # The number 9 restaurant is the second in the rank to be choose by the selected user,(restaurant= At) 
@@ -237,7 +196,8 @@ def get_real_rank(data):
   return rankdata(len(data)-rankdata(data))
 
 # This matrix the column are the restaurant and the row are the user
-np.dot(M_restaurants_m,M_people_m.T)
+M_usr_x_rest= np.dot(M_restaurants,M_people.T)
+M_usr_x_rest
 
 # Ech entry in this vector is the score for the choosing restaurant from all the user. Higher is better
 sum(np.dot(M_restaurants_m,M_people_m.T).T)
@@ -248,17 +208,10 @@ np.dot(M_restaurants_m,M_people_m.T).T[:,0]
 # Get the sum of the score for the first user
 sum(np.dot(M_restaurants_m,M_people_m.T).T[:,0])
 
-
 # We will get the rank of the restaurant. Lower rank better
 # Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second. 
 get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T).T))
 #`````````````````````````````````````````````````````````````````````````````````````````````````````
-
-# We will calculate the user rank by summing the row 
-sum(np.dot(M_restaurants_m,M_people_m.T))
-
-get_real_rank(sum(np.dot(M_restaurants_m,M_people_m.T))) 
-
 
 # We will calculate the user rank by the row 
 
@@ -269,5 +222,3 @@ for row in M_usr_x_rest:
     M_usr_x_rest_rank = np.array(M_usr_x_rest_rank)
     
 print( M_usr_x_rest_rank)
-
-            

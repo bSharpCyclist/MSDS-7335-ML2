@@ -1,4 +1,12 @@
 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Feb 13 11:47:40 2021
+
+@author: fabiosavorgnan
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -194,26 +202,26 @@ M_usr_x_rest= np.dot(M_restaurants,M_people.T)
 M_usr_x_rest
 
 # Ech entry in this vector is the score for the choosing restaurant from all the user. Higher is better
-sum(np.dot(M_restaurants,M_people.T).T)
+sum(np.dot(M_restaurants,M_people.T))
 
 # Explore the output
-np.dot(M_restaurants,M_people.T).T[:,0]
+np.dot(M_restaurants,M_people.T)[:,0]
 
 # Get the sum of the score for the first user
-sum(np.dot(M_restaurants,M_people.T).T[:,0])
+sum(np.dot(M_restaurants,M_people.T)[:,0])
 
 # We will get the rank of the restaurant. Lower rank better
-# Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second. 
-get_real_rank(sum(np.dot(M_restaurants,M_people.T).T))
+# Restaurant Joes is the number one ranked and restaurant, and restaurant Az is the second. 
+get_real_rank(sum(np.dot(M_restaurants,M_people.T)))
 #`````````````````````````````````````````````````````````````````````````````````````````````````````
 # Why is there a difference between the two? 
-# array([621, 602, 389, 335, 402, 404, 389, 189, 483, 422]) score
-# array([ 1. ,  2. ,  7.5,  9. ,  6. ,  5. ,  7.5, 10. ,  3. ,  4. ]) rank
-# es, there is a diference between the 2
+# array([411, 503, 443, 347, 410, 440, 417, 495, 376, 394])score
+#array([ 6.,  1.,  3., 10.,  7.,  4.,  5.,  2.,  9.,  8.]) rank
+# Yes, there is a diference between the 2
 
 # What problem arrives?  What does it represent in the real world? 
 # The problem that arrives is that the diference in the score between the second and the third is 
-# 119, and the diference between the first and the second is only 18. This can be misleading in the real
+# 52, and the diference between the first and the second is only 8. This can be misleading in the real
 # world if somebody is just answering question without though and that person can change the rank 
 # in a direction that will not reflex the reality of the business.
 
@@ -252,7 +260,7 @@ plt.show()
 rest_name= restaurants.keys()
 rest_name= list(rest_name)
 rest_name
-rest_rating= M_usr_x_rest.sum(axis=1)
+rest_rating= M_usr_x_rest.sum(axis=0)
 rest_rating
 rest_best= M_usr_x_rest[np.argmax(rest_rating),:]
 rest_best
@@ -293,14 +301,15 @@ print("Now we look at the disatisfaction of the whole group")
 print("Standard desviation of the whole group =",dis2_std )
 print("IQR of the whole group =",dis2_iqt)
 
-# The best restaurant for the entire group = flacos
+# The best restaurant for the entire group = Joes
 # Now we look at the disatisfaction of the whole group
-# Standard desviation of the whole group = 7.2725511342306834
-# IQR of the whole group = 7.0
-# The worst restaurant for the entire group = Az
+# Standard desviation of the whole group = 7.249827584156743
+# IQR of the whole group = 12.25
+# The worst restaurant for the entire group = AC
 # Now we look at the disatisfaction of the whole group
-# Standard desviation of the whole group = 2.5475478405713994
-# IQR of the whole group = 2.5
+# Standard desviation of the whole group = 3.721558813185679
+# IQR of the whole group = 3.5
+
 
 # Ok. Now you just found out the boss is paying for the meal. 
 # How should you adjust? Now what is the best restaurant?
@@ -314,6 +323,14 @@ M_usr_B_x_rest= np.dot(M_restaurants,M_boss_p.T)
 M_usr_B_x_rest
 
 # We will get the rank of the restaurant. Lower rank better
-# Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second.
-# Surprisingly the boss paying the bill did not make any diference in the choosing of the restaurant
-get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T).T))
+# Restaurant Az is the number one ranked and restaurant, and restaurant Joe is the second.
+# Surprisingly the boss paying the bill make the first and the second choices flip in the choosing of the restaurant
+get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T)))
+
+# Should you split in two groups today? 
+
+
+
+
+
+

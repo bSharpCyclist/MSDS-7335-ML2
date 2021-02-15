@@ -1,14 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Feb 13 11:47:40 2021
-
-@author: fabiosavorgnan
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
+from scipy.stats import iqr
 
 
 people = {'Jane': {'willingness to travel': 1,
@@ -212,13 +206,110 @@ sum(np.dot(M_restaurants,M_people.T).T[:,0])
 # Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second. 
 get_real_rank(sum(np.dot(M_restaurants,M_people.T).T))
 #`````````````````````````````````````````````````````````````````````````````````````````````````````
+# Why is there a difference between the two? 
+# array([621, 602, 389, 335, 402, 404, 389, 189, 483, 422]) score
+# array([ 1. ,  2. ,  7.5,  9. ,  6. ,  5. ,  7.5, 10. ,  3. ,  4. ]) rank
+# es, there is a diference between the 2
 
-# We will calculate the user rank by the row 
-M_usr_x_rest_rank= []
-for row in M_usr_x_rest:
-    ranked_row = get_real_rank(row)
-    M_usr_x_rest_rank= ranked_row
-    M_usr_x_rest_rank = np.array(M_usr_x_rest_rank)
-    
+# What problem arrives?  What does it represent in the real world? 
+# The problem that arrives is that the diference in the score between the second and the third is 
+# 119, and the diference between the first and the second is only 18. This can be misleading in the real
+# world if somebody is just answering question without though and that person can change the rank 
+# in a direction that will not reflex the reality of the business.
 
-print( M_usr_x_rest_rank)
+# How should you preprocess your data to remove this problem. 
+# I would set up an screening to find out the people that does not giving a honest answer and remove 
+# those people from the data in order to avoid the problem stated in the previous question.
+
+
+# Find  user profiles that are problematic, explain why?
+# in our data set there was not any particular user that was a problem, but very well it could be
+# in the real wrold.
+people_name= people.keys()
+people_name= list(people_name)
+people_name
+
+user_avg= M_usr_x_rest.mean(axis= 0)
+user_std= M_usr_x_rest.std(axis= 0)
+user_variance= user_std/user_avg 
+
+for i, x in zip(people_name,user_variance ):
+    print(i + ' = ' + str(x))
+
+
+plt.subplots(figsize=(10,10))
+plt.boxplot(x= user_variance, showmeans= True)
+plt.ylabel("Variance")
+plt.xlabel("Users")
+plt.title("Boxplot of user variance")
+plt.show()
+
+# Think of two metrics to compute the disatistifaction with the group.
+# We will look at the diference between the highest score from the best restaurant and all the other 
+# score from the same restaurant and we will find the STD and iqt of that difference. This potentially
+# could be done for any restaurant. We will do in this case for the best restaurant and the worst 
+# restaurant 
+rest_name= restaurants.keys()
+rest_name= list(rest_name)
+rest_name
+rest_rating= M_usr_x_rest.sum(axis=1)
+rest_rating
+rest_best= M_usr_x_rest[np.argmax(rest_rating),:]
+rest_best
+best_rest= rest_name[np.argmax(rest_rating)]
+best_rest
+rest_best_max= np.max(rest_best)
+disatisfaction= rest_best_max - rest_best
+disatisfaction
+dis_std= np.std(disatisfaction)
+dis_std
+dis_iqt= iqr(disatisfaction)
+dis_iqt
+print("Restaurants name =",rest_name )
+print("Individualized restaurnat rating =", rest_rating)
+print("Best restaurant rating =",rest_best )
+print("The best restaurant for the entire group =",best_rest)
+print("Now we look at the disatisfaction of the whole group")
+print("Standard desviation of the whole group =",dis_std )
+print("IQR of the whole group =",dis_iqt)
+
+rest_worst= M_usr_x_rest[np.argmin(rest_rating),:]
+rest_worst
+worst_rest= rest_name[np.argmin(rest_rating)]
+worst_rest
+rest_worst_m= np.min(rest_worst)
+disatisfaction2= rest_worst - rest_worst_m
+disatisfaction2
+dis2_std= np.std(disatisfaction2)
+dis2_std
+dis2_iqt= iqr(disatisfaction2)
+dis2_iqt
+
+print("Restaurants name =",rest_name )
+print("Individualized restaurnat rating =", rest_rating)
+print("Worst restaurant rating =",rest_worst )
+print("The worst restaurant for the entire group =", worst_rest)
+print("Now we look at the disatisfaction of the whole group")
+print("Standard desviation of the whole group =",dis2_std )
+print("IQR of the whole group =",dis2_iqt)
+
+# The best restaurant for the entire group = flacos
+# Now we look at the disatisfaction of the whole group
+# Standard desviation of the whole group = 7.2725511342306834
+# IQR of the whole group = 7.0
+
+# Ok. Now you just found out the boss is paying for the meal. 
+# How should you adjust? Now what is the best restaurant?
+
+# People matrix without the cost                              
+M_boss_p= M_people.copy()
+M_boss_p[:,2]= 0
+M_boss_p
+
+M_usr_B_x_rest= np.dot(M_restaurants,M_boss_p.T)
+M_usr_B_x_rest
+
+# We will get the rank of the restaurant. Lower rank better
+# Restaurant flacos is the number one ranked and restaurant, and restaurant Joe is the second.
+# Surprisingly the boss paying the bill did not make any diference in the choosing of the restaurant
+get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T).T))

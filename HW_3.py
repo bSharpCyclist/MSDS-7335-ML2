@@ -297,6 +297,10 @@ print("IQR of the whole group =",dis2_iqt)
 # Now we look at the disatisfaction of the whole group
 # Standard desviation of the whole group = 7.2725511342306834
 # IQR of the whole group = 7.0
+# The worst restaurant for the entire group = Az
+# Now we look at the disatisfaction of the whole group
+# Standard desviation of the whole group = 2.5475478405713994
+# IQR of the whole group = 2.5
 
 # Ok. Now you just found out the boss is paying for the meal. 
 # How should you adjust? Now what is the best restaurant?

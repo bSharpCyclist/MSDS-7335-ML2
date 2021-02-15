@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -329,8 +328,35 @@ get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T)))
 
 # Should you split in two groups today? 
 
+from sklearn.cluster import KMeans
+labellist= people_name
+n_fare= 2
+X1 = M_people 
 
+cls_fare = KMeans(n_clusters=n_fare, init='k-means++',random_state=1)
+cls_fare.fit(X1)
+newfeature_fare = cls_fare.labels_ # the labels from kmeans clustering
+centrioid= cls_fare.cluster_centers_
 
+# We can see here the separation of the groups
+plt.figure()
+plt.subplot(1,2,1)
+X1=X1
+plt.scatter(X1[:, 0], X1[:, 1]+np.random.random(X1[:, 1].shape)/2, c=newfeature_fare, cmap=plt.cm.rainbow, s=20, linewidths=0)
+plt.xlabel('People'), plt.ylabel('Choices')
+plt.grid()
 
+# We then find the people in the groups
+colors= ['g', 'r', 'c']
+plt.figure()
+plt.subplot(1,2,1)
+for i in range(len(X1)):
+    plt.plot(X1[i][0], X1[i][1], colors[newfeature_fare[i]],markersize= 15 ) 
+    plt.annotate(labellist[i],(X1[i][0], X1[i][1]), size= 10)
+plt.scatter(centrioid[:,0],centrioid[:,1],marker= 'o', s=150, linewidths= 2, zorder= 10)
+plt.xlabel('People'), plt.ylabel('Choices')
+plt.grid()
+# I believe we can split in 2, one would be the Saul, kasi and the other around and the other is Fabio and the 
+# other guys close to him, but it would not work for jane, Bob and jim, they are far apart.
 
 

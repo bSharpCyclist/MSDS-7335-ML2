@@ -327,6 +327,15 @@ M_usr_B_x_rest
 get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T)))
 
 # Should you split in two groups today? 
+# cluster to see the separation of the groups
+X1 = M_people 
+
+plt.scatter(X1[:, 1], X1[:, 0]+np.random.random(X1[:, 1].shape)/2, 
+             s=20)
+plt.xlabel('Peoples'), plt.ylabel('Choices')
+plt.grid()
+plt.title('People choices')
+plt.show()
 
 from sklearn.cluster import KMeans
 labellist= people_name

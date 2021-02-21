@@ -236,8 +236,8 @@ people_name= people.keys()
 people_name= list(people_name)
 people_name
 
-user_avg= M_usr_x_rest.mean(axis= 0)
-user_std= M_usr_x_rest.std(axis= 0)
+user_avg= M_usr_x_rest.mean(axis= 1)
+user_std= M_usr_x_rest.std(axis= 1)
 user_variance= user_std/user_avg 
 
 for i, x in zip(people_name,user_variance ):
@@ -309,6 +309,21 @@ print("IQR of the whole group =",dis2_iqt)
 # Standard desviation of the whole group = 3.721558813185679
 # IQR of the whole group = 3.5
 
+# Here are the variability from the user for the others restaurants for completness
+rest_name
+disatisfaction= []
+dis_std= []
+dis_iqt=[]
+
+for rows, i in zip(M_usr_x_rest, rest_name):
+    print("Restaurant= ", i)
+    row_max= np.max(rows)
+    disatisfaction = row_max - rows
+    print("Variability among the user =", disatisfaction)
+    dis_std = np.std(disatisfaction)
+    print("Standard Desviation=", dis_std)
+    dis_iqt = iqr(disatisfaction)
+    print("Interquartile range among the user =", dis_iqt)
 
 # Ok. Now you just found out the boss is paying for the meal. 
 # How should you adjust? Now what is the best restaurant?
@@ -327,7 +342,9 @@ M_usr_B_x_rest
 get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T)))
 
 # Should you split in two groups today? 
+
 # cluster to see the separation of the groups
+plt.style.use("ggplot")
 X1 = M_people 
 
 plt.scatter(X1[:, 1], X1[:, 0]+np.random.random(X1[:, 1].shape)/2, 
@@ -347,7 +364,7 @@ cls_fare.fit(X1)
 newfeature_fare = cls_fare.labels_ # the labels from kmeans clustering
 centrioid= cls_fare.cluster_centers_
 
-# We can see here the separation of the groups
+# We can see here the separation of the groups with the application of Knn
 plt.figure()
 plt.subplot(1,2,1)
 X1=X1
@@ -356,7 +373,8 @@ plt.xlabel('People'), plt.ylabel('Choices')
 plt.grid()
 
 # We then find the people in the groups
-colors= ['g', 'r', 'c']
+
+colors= ['g', 'r']
 plt.figure()
 plt.subplot(1,2,1)
 for i in range(len(X1)):
@@ -365,7 +383,22 @@ for i in range(len(X1)):
 plt.scatter(centrioid[:,0],centrioid[:,1],marker= 'o', s=150, linewidths= 2, zorder= 10)
 plt.xlabel('People'), plt.ylabel('Choices')
 plt.grid()
+
 # I believe we can split in 2, one would be the Saul, kasi and the other around and the other is Fabio and the 
 # other guys close to him, but it would not work for jane, Bob and jim, they are far apart.
 
 
+
+
+
+# extra code
+disatisfaction= np.zeros((10,10))
+dis_std= np.zeros(10)
+dis_iqt=np.zeros(10)
+for counter,row in enumerate(M_usr_x_rest):
+    row_max= np.max(row)
+    disatisfaction[counter,:] = row_max - row
+    dis_std[counter] = np.std(disatisfaction[counter,:] )
+    dis_iqt[counter] = iqr(disatisfaction[counter,:] )
+       
+print(disatisfaction, dis_std, dis_iqt)

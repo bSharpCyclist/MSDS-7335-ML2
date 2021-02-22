@@ -167,8 +167,7 @@ M_restaurants= np.array([[v2 for _, v2 in v.items()] for _, v in restaurants.ite
 M_restaurants           
 
 # Definition of linear combination
-# If you take a set of matrices, you multiply each of them by a scalar, 
-# and you add together all the products thus obtained, then you obtain a linear combination.
+# If Vector A = scaler1 * B + scaler2 * C, then vector A is a linear combination of vectors B and C.
 # Note that all the matrices involved in a linear combination need to have the same dimension 
 # (otherwise matrix addition would not be possible)
 

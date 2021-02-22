@@ -225,12 +225,12 @@ get_real_rank(sum(np.dot(M_restaurants,M_people.T)))
 # in a direction that will not reflex the reality of the business.
 
 # How should you preprocess your data to remove this problem. 
-# I would set up an screening to find out the people that does not giving a honest answer and remove 
-# those people from the data in order to avoid the problem stated in the previous question.
+# I would set up an screening to find out the people that does not give a honest answer. Afterword, I would proceed
+# to remove those people from the data in order to avoid the problem stated in the previous question.
 
 
 # Find  user profiles that are problematic, explain why?
-# in our data set there was not any particular user that was a problem, but very well it could be
+# In our data set there was not any particular user that was a problem, but very well it could be a problem
 # in the real wrold.
 people_name= people.keys()
 people_name= list(people_name)
@@ -253,9 +253,9 @@ plt.show()
 
 # Think of two metrics to compute the disatistifaction with the group.
 # We will look at the diference between the highest score from the best restaurant and all the other 
-# score from the same restaurant and we will find the STD and iqt of that difference. This potentially
-# could be done for any restaurant. We will do in this case for the best restaurant and the worst 
-# restaurant 
+# score from the same restaurant and we will find the STD and iqt of that difference. This proces we will also do for the other
+# restaurant.
+# We will do specifially for the best restaurant and the worst restaurant.  
 rest_name= restaurants.keys()
 rest_name= list(rest_name)
 rest_name
@@ -301,11 +301,11 @@ print("Standard desviation of the whole group =",dis2_std )
 print("IQR of the whole group =",dis2_iqt)
 
 # The best restaurant for the entire group = Joes
-# Now we look at the disatisfaction of the whole group
+# Now we look at the disatisfaction of the whole group with respect to the best restaurant
 # Standard desviation of the whole group = 7.249827584156743
 # IQR of the whole group = 12.25
 # The worst restaurant for the entire group = AC
-# Now we look at the disatisfaction of the whole group
+# Now we look at the disatisfaction of the whole group with respect to the worst restautant
 # Standard desviation of the whole group = 3.721558813185679
 # IQR of the whole group = 3.5
 
@@ -337,7 +337,7 @@ M_usr_B_x_rest= np.dot(M_restaurants,M_boss_p.T)
 M_usr_B_x_rest
 
 # We will get the rank of the restaurant. Lower rank better
-# Restaurant Az is the number one ranked and restaurant, and restaurant Joe is the second.
+# Restaurant Az is the number one ranked and restaurant, Joe is the second.
 # Surprisingly the boss paying the bill make the first and the second choices flip in the choosing of the restaurant
 get_real_rank(sum(np.dot(M_restaurants,M_boss_p.T)))
 
@@ -384,10 +384,15 @@ plt.scatter(centrioid[:,0],centrioid[:,1],marker= 'o', s=150, linewidths= 2, zor
 plt.xlabel('People'), plt.ylabel('Choices')
 plt.grid()
 
-# I believe we can split in 2, one would be the Saul, kasi and the other around and the other is Fabio and the 
+# I believe we can split in 2, one would be the Saul, kasi and the other around them. And the other is Fabio with the 
 # other guys close to him, but it would not work for jane, Bob and jim, they are far apart.
 
+# Tomorrow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  
+# Can you find their weight matrix? 
 
+# We will not be able to find the weight matrix because we dont have the raw datafrom the new team. We only have their rank 
+# of the restaurant but we dont have the detail raw data that gave those rank of the restaurant. The weight matrix would be the 
+# multiplication of the R_matrix against the new team matrix of the detailed preference of the new team of the restaurant.
 
 
 

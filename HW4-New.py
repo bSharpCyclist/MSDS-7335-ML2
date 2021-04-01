@@ -3,6 +3,7 @@
 # Purpose: Transfer Learning
 # Author: Dan Crouthamel, Fabio Savorgnan
 # Date: April 2021
+# https://github.com/bSharpCyclist/MSDS-7335-ML2
 #***********************
 #
 # Proposed Solution:
@@ -31,13 +32,16 @@ img = np.asarray(img)
 cv2.imshow('image',img)
 cv2.waitKey(0)
 
+# For training, we have a 10x5 grid of letters on one sheet
 M = img.shape[0]//10
 N = img.shape[1]//5
 
 # Create a list of training images, the length when printed out should be 50
-# Stole list comprehension code from here
+# Stole list comprehension concept from here, and rewrote with better labels
 # https://stackoverflow.com/questions/5953373/how-to-split-image-into-multiple-pieces-in-python
-train_letters = [img[x:x+M,y:y+N] for x in range(0,img.shape[0],M) for y in range(0,img.shape[1],N)]
+#train_letters = [img[x:x+M,y:y+N] for x in range(0,img.shape[0],M) for y in range(0,img.shape[1],N)]
+train_letters = [img[height:height+M, width:width+N] for height in range(0, img.shape[0], M) for width in range(0, img.shape[1], N)]
+
 print(len(train_letters))
 
 # Show a random training image from the set of 50, make sure it looks good
@@ -48,7 +52,7 @@ cv2.waitKey(0)
 img = cv2.imread(('./data/LetterSheetTest.png'), 0)
 img = np.asarray(img)
 
-# In this case we have a 5x5 grid
+# In this case we have a 5x5 grid for our test images
 M = img.shape[0]//5
 N = img.shape[1]//5
 

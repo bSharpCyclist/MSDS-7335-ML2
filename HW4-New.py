@@ -41,8 +41,13 @@ N = img.shape[1]//5
 # Stole list comprehension concept from here, and rewrote with better labels
 # https://stackoverflow.com/questions/5953373/how-to-split-image-into-multiple-pieces-in-python
 #train_letters = [img[x:x+M,y:y+N] for x in range(0,img.shape[0],M) for y in range(0,img.shape[1],N)]
+#
+# If list comprehensions are new to you ...
+# Think about this as a nested for loop, where the inner loop (Width) is going from left to right capturing A, B, C, D, E
+# And the outer loop (Height) is going from top to bottom. So we start on row 1, capture A, B, C, D and E.
+# Then go to row 2 and repeat.
+# We split the big image up into MxN images (height x width). These will get resized to 28x28 later.
 train_letters = [img[height:height+M, width:width+N] for height in range(0, img.shape[0], M) for width in range(0, img.shape[1], N)]
-
 print(len(train_letters))
 
 # Show a random training image from the set of 50, make sure it looks good
@@ -57,7 +62,7 @@ M = img.shape[0]//5
 N = img.shape[1]//5
 
 # Create a list of testing images, the length when printed out should be 25
-test_letters = [img[x:x+M,y:y+N] for x in range(0,img.shape[0],M) for y in range(0,img.shape[1],N)]
+test_letters = [img[height:height+M, width:width+N] for height in range(0, img.shape[0], M) for width in range(0, img.shape[1], N)]
 print(len(test_letters))
 
 # Show a random testing image from the set of 25, make sure it looks good

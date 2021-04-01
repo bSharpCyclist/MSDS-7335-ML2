@@ -19,6 +19,8 @@
 # We will invert and test again. I suspect the accuracy should be very high
 # We need a test/validation sheet as well. This has 25 images, LetterSheetTest.png, 870x590.
 # We will break LetterSheetTest up into 25 images.
+#
+# Outcome: As expected, the accuracy is near 100%!
 
 
 import numpy as np
@@ -26,7 +28,6 @@ import cv2
 
 # Read in our Training Letters
 img = cv2.imread(('./data/LetterSheetTrain.png'), 0)
-img = np.asarray(img)
 
 # Show entire sheet of images
 cv2.imshow('image',img)
@@ -50,7 +51,6 @@ cv2.waitKey(0)
 
 # Now do the same for our testing images, read in a different sheet
 img = cv2.imread(('./data/LetterSheetTest.png'), 0)
-img = np.asarray(img)
 
 # In this case we have a 5x5 grid for our test images
 M = img.shape[0]//5
@@ -65,7 +65,6 @@ cv2.imshow('image',test_letters[8])
 cv2.waitKey(0)
 
 # Now Bring in Stuart's code
-
 from sklearn.utils import shuffle
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
@@ -204,11 +203,18 @@ dim = (width, height)
 
 for i in range(len(train_letters)):
     img = train_letters[i]
-    img = cv2.bitwise_not(img)
+    img = cv2.bitwise_not(img) #inverts image
     img = img / 255.
     resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     new_images.append(np.array(resized))
 
+# Sanity check, spot check a random image in new_image
+imgTest = new_images[7]
+imgTest = imgTest * 255
+cv2.imshow('image',imgTest)
+cv2.waitKey(0)
+
+# Stack and reshape
 x_letters_train = np.stack(new_images)
 print(x_letters_train.shape)
 
@@ -226,11 +232,12 @@ validation_new_images = []
 
 for i in range(len(test_letters)):
     img = test_letters[i]
-    img = cv2.bitwise_not(img)
+    img = cv2.bitwise_not(img)  #inverts image
     img = img / 255.
     resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     validation_new_images.append(np.array(resized))
 
+# Stack and Reshape
 validation_letter_data = np.stack(validation_new_images)
 print(validation_letter_data.shape)
 

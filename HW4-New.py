@@ -19,9 +19,10 @@
 # We will invert and test again. I suspect the accuracy should be very high
 # We need a test/validation sheet as well. This has 25 images, LetterSheetTest.png, 870x590.
 # We will break LetterSheetTest up into 25 images.
-#
-# Outcome: As expected, the accuracy is near 100%!
 
+
+## Solution for drawing images on touchscreen laptop
+####################################################
 
 import numpy as np
 import cv2
@@ -265,3 +266,164 @@ new_model_hist = new_model.fit(x_letters_train, y_labels,
 
 
 plot_training_curves(new_model_hist)
+
+###################################
+###################################
+### Solution for Hand Drawn Letters
+###################################
+###################################
+
+# Set num classes = 10, for all digits. Will transfer to letters later
+num_classes=10
+filters=32
+pool_size=2
+kernel_size=3
+dropout=0.2
+input_shape = (28,28,1)
+
+model2 = Sequential([
+      # convolutional feature extraction
+      # ConvNet 1
+      keras.layers.Conv2D(filters, kernel_size, padding = 'valid',
+              activation='relu',
+              input_shape=input_shape),
+      keras.layers.MaxPooling2D(pool_size=pool_size),
+
+      # ConvNet 2
+      keras.layers.Conv2D(filters, kernel_size,
+              padding = 'valid',
+              activation='relu'),
+      keras.layers.MaxPooling2D(pool_size=pool_size),
+
+      # classification 
+      # will retrain from here
+      keras.layers.Flatten(name='flatten'),
+
+      keras.layers.Dropout(dropout),
+      keras.layers.Dense(128, activation='relu'),
+      
+      keras.layers.Dropout(dropout, name='penult'),
+      keras.layers.Dense(num_classes, activation='softmax', name='last')
+  ])
+
+es = keras.callbacks.EarlyStopping(min_delta=0.001, patience=2)
+
+model2.compile(loss='sparse_categorical_crossentropy',
+                      optimizer='adam', #sgd, nadam, adam, rmsprop
+                      metrics=['accuracy'])
+
+history2 = model2.fit(mnist_data, mnist_labels,
+                    validation_data=(mnist_test_data, mnist_test_labels),
+                    batch_size=32,
+                    epochs=1000,
+                    callbacks=[es])
+
+plot_training_curves(history=history2)
+model2.summary()
+
+# lock the ConvNet layers
+layer_trainable = False
+for layer in model2.layers:
+  layer.trainable = layer_trainable
+
+  if layer.name == 'flatten':
+    layer_trainable = True
+
+print(f"{'Layer Name':17} {'Is Trainable?'}")
+for layer in model2.layers:
+  print(f"{layer.name:17} {layer.trainable}")
+
+# get the penultimate layer of the model
+penult_layer = model2.get_layer(name='penult')
+
+# create a new output layer
+output_layer = keras.layers.Dense(5, activation='softmax')(penult_layer.output)
+new_model2 = Model(model2.input, output_layer)
+new_model2.summary()
+
+
+import glob
+# This is a list of file names
+# letter_images = glob.glob('/content/drive/My Drive/Letters/*')  #EMNIST
+letter_images = glob.glob('./data/train_letters/*.jpeg')   #Fabio's list
+
+# Load each image and resize
+new_images = []
+width = 28
+height = 28
+dim = (width, height)
+
+# Sort by filename
+letter_images.sort()
+
+for img in letter_images:
+  img = cv2.imread(img, 0)
+
+  #Invert the image
+  img = cv2.bitwise_not(img)
+
+  img = img / 255.
+  resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+  new_images.append(np.array(resized))
+
+# Process and Reshape
+x_letters_train = np.stack(new_images)
+x_letters_train = x_letters_train.reshape((50,28,28,1))
+
+# Setup Y labels, since this is read in by file name, it will read all A's, then B's, etc
+letter_a = [0] * 10
+letter_b = [1] * 10
+letter_c = [2] * 10
+letter_d = [3] * 10
+letter_e = [4] * 10
+
+y_labels = letter_a + letter_b + letter_c + letter_d + letter_e
+
+y_labels = np.asarray(y_labels)
+y_labels
+
+# Read in images for testing
+# This is a list of file names
+# letter_images = glob.glob('/content/drive/My Drive/Letters/*')  #EMNIST
+validation_letter_images = glob.glob('./data/test_letters/*.png')   #Dan's draw letters for testing
+
+# Load each image and resize
+validation_new_images = []
+
+# Sort by filename
+validation_letter_images.sort()
+
+for img in validation_letter_images:
+  img = cv2.imread(img, 0)
+
+  # Invert the image
+  img = cv2.bitwise_not(img)
+
+  img = img / 255.
+  resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+  validation_new_images.append(np.array(resized))
+
+# Process and Reshpae
+validation_letter_data = np.stack(validation_new_images)
+validation_letter_data = validation_letter_data.reshape((25,28,28,1))
+
+# Setup y lables
+letter_a = [0] * 5
+letter_b = [1] * 5
+letter_c = [2] * 5
+letter_d = [3] * 5
+letter_e = [4] * 5
+y_validation_labels = letter_a + letter_b + letter_c + letter_d + letter_e
+y_validation_labels = np.asarray(y_validation_labels)
+
+# Transfer learning
+new_model2.compile(loss='sparse_categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
+new_model_hist2 = new_model2.fit(x_letters_train, y_labels,
+                              validation_data=(validation_letter_data, y_validation_labels),
+                              batch_size=32,
+                              epochs=1000,
+                              callbacks=[es])
+plot_training_curves(new_model_hist2)

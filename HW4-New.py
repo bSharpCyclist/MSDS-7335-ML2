@@ -20,6 +20,11 @@
 # We need a test/validation sheet as well. This has 25 images, LetterSheetTest.png, 870x590.
 # We will break LetterSheetTest up into 25 images.
 
+## Results - we had validation accuraries in the high 90s for the cleaner images solution
+## For the hand drawn letters, it varied per run in the 70s and 80s.
+## Code doens't include test against EMNIST since it wasn't allowed
+## You'll have to run the code to see the output ...
+
 
 ## Solution for drawing images on touchscreen laptop
 ####################################################
@@ -28,7 +33,7 @@ import numpy as np
 import cv2
 
 # Read in our Training Letters
-img = cv2.imread(('/Data/LetterSheetTrain.png'), 0)
+img = cv2.imread(('./data/LetterSheetTrain.png'), 0)
 
 # Show entire sheet of images
 cv2.imshow('image',img)
@@ -56,7 +61,7 @@ cv2.imshow('image',train_letters[17])
 cv2.waitKey(0)
 
 # Now do the same for our testing images, read in a different sheet
-img = cv2.imread(('/UData/LetterSheetTest.png'), 0)
+img = cv2.imread(('./data/LetterSheetTest.png'), 0)
 
 # In this case we have a 5x5 grid for our test images
 M = img.shape[0]//5
